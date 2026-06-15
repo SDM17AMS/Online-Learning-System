@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+
+{% block title %}Browse Courses{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h1>Browse Courses</h1>
+    </div>
+    {% if user.is_authenticated and user.is_instructor %}
+    <div class="col-auto">
+        <a href="{% url 'courses:course_create' %}" class="btn btn-primary">Create Course</a>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Filters -->
+<div class="card mb-4">
+    <div class="card-body">
+        <h5 class="card-title">Filter By</h5>
+        <div class="row">
+            <div class="col-md-4">
+                <label>Category:</label>
+                <div class="d-flex flex-wrap gap-2">
+                    <a href="{% url 'courses:course_list' %}" class="btn btn-sm btn-outline-secondary {% if not request.GET.category %}active{% endif %}">All</a>
+                    {% for cat in categories %}
+                    <a href="?category={{ cat.slug }}" class="btn btn-sm btn-outline-secondary {% if request.GET.category == cat.slug %}active{% endif %}">{{ cat.name }}</a>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="col-md-4">
+                <label>Tag:</label>
+                <div class="d-flex flex-wrap gap-2">
+                    {% for tag in tags %}
+                    <a href="?tag={{ tag.slug }}" class="btn btn-sm btn-outline-info {% if request.GET.tag == tag.slug %}active{% endif %}">{{ tag.name }}</a>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Course Grid -->
+<div class="row">
+    {% for course in courses %}
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            {% if course.image %}
+            <img src="{{ course.image.url }}" class="card-img-top" alt="{{ course.title }}" style="height: 180px; object-fit: cover;">
+            {% endif %}
+            <div class="card-body">
+                <span class="badge bg-secondary">{{ course.category.name|default:"Uncategorized" }}</span>
+                <h5 class="card-title mt-2">{{ course.title }}</h5>
+                <p class="card-text text-muted">{{ course.description|truncatewords:20 }}</p>
+                <p class="card-text">
+                    <small>By {{ course.instructor.username }}</small><br>
+                    <strong>${{ course.price }}</strong>
+                </p>
+            </div>
+            <div class="card-footer">
+                <a href="{% url 'courses:course_detail' course.slug %}" class="btn btn-primary btn-sm">View Details</a>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col">
+        <p class="text-muted">No courses found.</p>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Pagination -->
+{% if is_paginated %}
+<nav class="mt-4">
+    <ul class="pagination justify-content-center">
+        {% if page_obj.has_previous %}
+        <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.tag %}&tag={{ request.GET.tag }}{% endif %}">Previous</a></li>
+        {% endif %}
+        <li class="page-item active"><span class="page-link">{{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span></li>
+        {% if page_obj.has_next %}
+        <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.tag %}&tag={{ request.GET.tag }}{% endif %}">Next</a></li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+{% endblock %}

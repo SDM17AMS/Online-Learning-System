@@ -1,5 +1,8 @@
 from django.db import models
+from django.urls import reverse
 from django.conf import settings
+from django.utils.text import slugify
+
 
 class Category(models.Model):
     name = models.CharField(max_length=100, unique=True)
@@ -24,6 +27,7 @@ class Tag(models.Model):
     def __str__(self):
         return self.name
 
+
 class Course(models.Model):
     instructor = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -40,7 +44,7 @@ class Course(models.Model):
     tags = models.ManyToManyField(Tag, blank=True, related_name='courses')
     
     title = models.CharField(max_length=200)
-    slug = models.SlugField(unique=True)
+    slug = models.SlugField(unique=True, blank=True)  # blank=True allows auto-generation
     description = models.TextField()
     price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     image = models.ImageField(upload_to='courses/%Y/%m/', blank=True)
@@ -51,8 +55,22 @@ class Course(models.Model):
     class Meta:
         ordering = ['-created_at']
     
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            base_slug = slugify(self.title)
+            slug = base_slug
+            counter = 1
+            while Course.objects.filter(slug=slug).exclude(pk=self.pk).exists():
+                slug = f"{base_slug}-{counter}"
+                counter += 1
+            self.slug = slug
+        super().save(*args, **kwargs)
+    
     def __str__(self):
         return self.title
+    
+    def get_absolute_url(self):
+        return reverse('courses:course_detail', kwargs={'slug': self.slug})
     
     @property
     def total_lessons(self):

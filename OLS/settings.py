@@ -141,3 +141,6 @@ AUTH_USER_MODEL = 'accounts.User'
 LOGIN_URL = 'accounts:login'
 LOGIN_REDIRECT_URL = 'dashboard:redirect'
 LOGOUT_REDIRECT_URL = 'accounts:login'
+
+#remove trailing slash from URLs eg /courses/python-101/ to /courses/python-101
+APPEND_SLASH = True

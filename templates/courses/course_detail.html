@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ course.title }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        {% if course.image %}
+        <img src="{{ course.image.url }}" class="img-fluid rounded mb-4" alt="{{ course.title }}">
+        {% endif %}
+        
+        <h1>{{ course.title }}</h1>
+        <p class="text-muted">
+            By <a href="?instructor={{ course.instructor.username }}">{{ course.instructor.username }}</a> | 
+            {{ course.category.name|default:"Uncategorized" }} | 
+            {{ course.created_at|date:"F d, Y" }}
+        </p>
+        
+        <div class="mb-3">
+            {% for tag in course.tags.all %}
+            <span class="badge bg-info">{{ tag.name }}</span>
+            {% endfor %}
+        </div>
+        
+        <h4>Description</h4>
+        <p>{{ course.description|linebreaks }}</p>
+        
+        <h4 class="mt-4">Lessons ({{ lessons|length }})</h4>
+        {% if lessons %}
+        <div class="list-group">
+            {% for lesson in lessons %}
+            <div class="list-group-item d-flex justify-content-between align-items-center">
+                <div>
+                    <span class="badge bg-secondary me-2">#{{ lesson.order }}</span>
+                    {{ lesson.title }}
+                    {% if lesson.duration > 0 %}
+                    <small class="text-muted">({{ lesson.duration }} min)</small>
+                    {% endif %}
+                </div>
+                {% if is_enrolled %}
+                <a href="{% url 'lessons:lesson_detail' lesson.pk %}" class="btn btn-sm btn-success">Start</a>
+                {% else %}
+                <span class="badge bg-secondary">Enroll to access</span>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-muted">No lessons yet.</p>
+        {% endif %}
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card sticky-top" style="top: 20px;">
+            <div class="card-body">
+                <h3 class="card-title">${{ course.price }}</h3>
+                <p class="card-text">
+                    <strong>{{ course.enrolled_students_count }}</strong> students enrolled<br>
+                    <strong>{{ lessons|length }}</strong> lessons
+                </p>
+                
+                {% if user.is_authenticated %}
+                    {% if is_enrolled %}
+                    <a href="{% url 'dashboard:student' %}" class="btn btn-success w-100">Go to My Courses</a>
+                    {% elif user.is_student %}
+                    <a href="{% url 'courses:enroll' course.slug %}" class="btn btn-primary w-100">Enroll Now</a>
+                    {% endif %}
+                    
+                    {% if user == course.instructor or user.is_employee %}
+                    <hr>
+                    <a href="{% url 'courses:course_edit' course.slug %}" class="btn btn-outline-secondary w-100 mb-2">Edit Course</a>
+                    <a href="{% url 'courses:course_delete' course.slug %}" class="btn btn-outline-danger w-100">Delete Course</a>
+                    {% endif %}
+                {% else %}
+                <a href="{% url 'accounts:login' %}?next={{ request.path }}" class="btn btn-primary w-100">Login to Enroll</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
