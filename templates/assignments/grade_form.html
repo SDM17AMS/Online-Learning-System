@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Grade Submission{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <h1>Grade Submission</h1>
+        <p><strong>Student:</strong> {{ submission.student.username }}</p>
+        <p><strong>Assignment:</strong> {{ submission.assignment.title }}</p>
+        <p><strong>Max Score:</strong> {{ submission.assignment.max_score }}</p>
+        
+        {% if submission.file_upload %}
+        <p><a href="{{ submission.file_upload.url }}" target="_blank" class="btn btn-outline-info">View Uploaded File</a></p>
+        {% endif %}
+        
+        {% if submission.code_text %}
+        <div class="card mb-3">
+            <div class="card-header">Submitted Code/Text</div>
+            <div class="card-body"><pre>{{ submission.code_text }}</pre></div>
+        </div>
+        {% endif %}
+        
+        <form method="post">
+            {% csrf_token %}
+            {{ form|crispy }}
+            <button type="submit" class="btn btn-success">Save Grade</button>
+            <a href="{% url 'assignments:grade_list' %}" class="btn btn-secondary">Cancel</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

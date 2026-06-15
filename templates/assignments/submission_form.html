@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Submit Assignment{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <h1>Submit: {{ assignment.title }}</h1>
+        <p class="text-muted">{{ assignment.lesson.course.title }} - {{ assignment.lesson.title }}</p>
+        <p><strong>Due:</strong> {{ assignment.due_date|date:"M d, Y H:i" }}</p>
+        <p><strong>Max Score:</strong> {{ assignment.max_score }}</p>
+        
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ form|crispy }}
+            <button type="submit" class="btn btn-primary">Submit Assignment</button>
+            <a href="{% url 'lessons:lesson_detail' assignment.lesson.pk %}" class="btn btn-secondary">Cancel</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

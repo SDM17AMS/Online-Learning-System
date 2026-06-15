@@ -1,0 +1,46 @@
+    {% extends 'base.html' %}
+
+{% block title %}My Submissions{% endblock %}
+
+{% block content %}
+<h1>My Submissions</h1>
+
+{% if submissions %}
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Assignment</th>
+            <th>Course</th>
+            <th>Submitted</th>
+            <th>Score</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for sub in submissions %}
+        <tr>
+            <td>{{ sub.assignment.title }}</td>
+            <td>{{ sub.assignment.lesson.course.title }}</td>
+            <td>{{ sub.submitted_at|date:"M d, Y" }}</td>
+            <td>
+                {% if sub.score is not None %}
+                {{ sub.score }} / {{ sub.assignment.max_score }}
+                {% else %}
+                <span class="badge bg-warning">Pending</span>
+                {% endif %}
+            </td>
+            <td>
+                {% if sub.score is not None %}
+                <span class="badge bg-success">Graded</span>
+                {% else %}
+                <span class="badge bg-secondary">Submitted</span>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p class="text-muted">No submissions yet.</p>
+{% endif %}
+{% endblock %}  

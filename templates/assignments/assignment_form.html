@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}{% if object %}Edit{% else %}Create{% endif %} Assignment{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <h1>{% if object %}Edit{% else %}Create{% endif %} Assignment</h1>
+        {% if lesson %}
+        <p class="text-muted">For lesson: {{ lesson.title }}</p>
+        <form method="post">
+            {% csrf_token %}
+            {{ form|crispy }}
+            <button type="submit" class="btn btn-primary">Save Assignment</button>
+            <a href="{% url 'courses:course_detail' lesson.course.slug %}" class="btn btn-secondary">Cancel</a>
+        </form>
+        {% elif object %}
+        <p class="text-muted">For lesson: {{ object.lesson.title }}</p>
+        <form method="post">
+            {% csrf_token %}
+            {{ form|crispy }}
+            <button type="submit" class="btn btn-primary">Save Assignment</button>
+            <a href="{% url 'courses:course_detail' object.lesson.course.slug %}" class="btn btn-secondary">Cancel</a>
+        </form>
+        {% else %}
+        <p class="text-muted">Unknown lesson</p>
+        <form method="post">
+            {% csrf_token %}
+            {{ form|crispy }}
+            <button type="submit" class="btn btn-primary">Save Assignment</button>
+            <a href="{% url 'courses:course_list' %}" class="btn btn-secondary">Cancel</a>
+        </form>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

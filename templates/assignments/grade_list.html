@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block title %}Grade Submissions{% endblock %}
+
+{% block content %}
+<h1>Submissions to Grade</h1>
+
+{% if submissions %}
+<div class="list-group">
+    {% for sub in submissions %}
+    <div class="list-group-item">
+        <div class="d-flex justify-content-between">
+            <div>
+                <strong>{{ sub.assignment.title }}</strong>
+                <p class="mb-1">{{ sub.assignment.lesson.course.title }} - {{ sub.student.username }}</p>
+                <small>Submitted: {{ sub.submitted_at|date:"M d, Y" }}</small>
+            </div>
+            <a href="{% url 'assignments:grade' sub.pk %}" class="btn btn-primary">Grade</a>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<p class="text-muted">No pending submissions.</p>
+{% endif %}
+{% endblock %}

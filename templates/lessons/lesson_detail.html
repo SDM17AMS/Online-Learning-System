@@ -39,6 +39,10 @@
         <h4>Description</h4>
         <p>{{ lesson.description|linebreaks }}</p>
         
+        {% if user == course.instructor or user.is_employee %}
+        <a href="{% url 'assignments:assignment_create' lesson.pk %}" class="btn btn-outline-warning mb-3">Add Assignment</a>
+        {% endif %}
+        
         {% if lesson.pdf_resource %}
         <a href="{{ lesson.pdf_resource.url }}" class="btn btn-outline-primary" target="_blank">
             Download Resource (PDF)
@@ -81,6 +85,7 @@
     </div>
 </div>
 {% endblock %}
+
 {% block extra_js %}
 <script>
 document.querySelectorAll('.progress-bar').forEach(bar => {
