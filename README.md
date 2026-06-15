@@ -1,0 +1,7 @@
+Demo credentials
+student
+demo12345
+instructor
+demo12345
+employee
+demo12345
