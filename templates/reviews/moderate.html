@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block title %}Moderate Reviews{% endblock %}
+
+{% block content %}
+<h1>Review Moderation</h1>
+
+<h3>Pending Approval ({{ pending_reviews|length }})</h3>
+{% if pending_reviews %}
+<div class="list-group mb-4">
+    {% for review in pending_reviews %}
+    <div class="list-group-item">
+        <div class="d-flex justify-content-between">
+            <strong>{{ review.student.username }}</strong>
+            <span class="badge bg-warning">{{ review.rating }}/5</span>
+        </div>
+        <p class="mb-1">{{ review.comment|linebreaks }}</p>
+        <small class="text-muted">{{ review.course.title }} - {{ review.created_at|date:"M d, Y" }}</small>
+        <div class="mt-2">
+            <a href="{% url 'reviews:approve_review' review.pk %}" class="btn btn-sm btn-success">Approve</a>
+            <a href="{% url 'reviews:delete_review' review.pk %}" class="btn btn-sm btn-outline-danger">Delete</a>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<p class="text-muted">No pending reviews.</p>
+{% endif %}
+
+<h3>Recently Approved</h3>
+{% if recent_reviews %}
+<div class="list-group">
+    {% for review in recent_reviews %}
+    <div class="list-group-item">
+        <div class="d-flex justify-content-between">
+            <strong>{{ review.student.username }}</strong>
+            <span class="badge bg-success">{{ review.rating }}/5</span>
+        </div>
+        <p class="mb-1">{{ review.comment|truncatewords:30 }}</p>
+        <small class="text-muted">{{ review.course.title }}</small>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<p class="text-muted">No approved reviews yet.</p>
+{% endif %}
+{% endblock %}

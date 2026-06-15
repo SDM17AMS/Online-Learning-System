@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block title %}Reviews - {{ course.title }}{% endblock %}
+
+{% block content %}
+<h1>Reviews for {{ course.title }}</h1>
+
+{% if reviews %}
+<div class="list-group">
+    {% for review in reviews %}
+    <div class="list-group-item">
+        <div class="d-flex justify-content-between">
+            <strong>{{ review.student.username }}</strong>
+            <span class="badge bg-warning">{{ review.rating }}/5</span>
+        </div>
+        <p class="mb-1">{{ review.comment|linebreaks }}</p>
+        <small class="text-muted">{{ review.created_at|date:"M d, Y" }}</small>
+        {% if review.student == user or user.is_employee %}
+        <div class="mt-2">
+            <a href="{% url 'reviews:edit_review' review.pk %}" class="btn btn-sm btn-outline-secondary">Edit</a>
+            <a href="{% url 'reviews:delete_review' review.pk %}" class="btn btn-sm btn-outline-danger">Delete</a>
+        </div>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<p class="text-muted">No reviews yet.</p>
+{% endif %}
+
+<a href="{% url 'courses:course_detail' course.slug %}" class="btn btn-primary mt-3">Back to Course</a>
+{% endblock %}

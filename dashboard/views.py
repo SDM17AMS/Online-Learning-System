@@ -140,6 +140,7 @@ class EmployeeDashboardView(TemplateView):
             {'name': 'Assignments', 'url': '/admin/assignments/assignment/'},
             {'name': 'Submissions', 'url': '/admin/assignments/submission/'},
             {'name': 'Reviews', 'url': '/admin/reviews/review/'},
+            {'name': 'Review Moderation', 'url': '/reviews/moderate/'},
         ]
         
         return context

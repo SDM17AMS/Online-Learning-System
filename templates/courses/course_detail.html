@@ -52,6 +52,12 @@
         {% else %}
         <p class="text-muted">No lessons yet.</p>
         {% endif %}
+        
+        <h4 class="mt-4">Reviews</h4>
+        {% if is_enrolled %}
+        <a href="{% url 'reviews:add_review' course.slug %}" class="btn btn-outline-primary mb-3">Write a Review</a>
+        {% endif %}
+        <a href="{% url 'reviews:course_reviews' course.slug %}" class="btn btn-outline-secondary mb-3">View All Reviews</a>
     </div>
     
     <div class="col-md-4">
