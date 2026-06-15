@@ -1,1 +1,36 @@
-venv
+# Python
+__pycache__/
+*.py[cod]
+*.so
+*.egg-info/
+.eggs/
+dist/
+build/
+
+# Django
+*.log
+db.sqlite3
+db.sqlite3-journal
+local_settings.py
+
+# Environment
+.env
+.env.*
+.venv/
+venv/
+ENV/
+
+# Static/Media (generated)
+staticfiles/
+media/*
+!media/.gitkeep
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*~
+
+# OS
+.DS_Store
+Thumbs.db
