@@ -3,7 +3,88 @@
 {% block title %}Student Dashboard{% endblock %}
 
 {% block content %}
-<h1>Student Dashboard</h1>
-<p>Welcome, {{ user.username }}!</p>
-<p>Your enrolled courses will appear here.</p>
+<h1>Welcome, {{ user.username }}!</h1>
+
+<div class="row mt-4">
+    <div class="col-md-4">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <h4>{{ enrollments|length }}</h4>
+                <p>Enrolled Courses</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <h4>{{ total_lessons_completed }}</h4>
+                <p>Lessons Completed</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <h4>{{ graded_submissions|length }}</h4>
+                <p>Graded Assignments</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-6">
+        <h3>My Courses</h3>
+        {% if enrollments %}
+        <div class="list-group">
+            {% for enrollment in enrollments %}
+            <a href="{% url 'courses:course_detail' enrollment.course.slug %}" class="list-group-item">
+                <div class="d-flex justify-content-between">
+                    <strong>{{ enrollment.course.title }}</strong>
+                    <span class="badge bg-{% if enrollment.status == 'completed' %}success{% else %}primary{% endif %}">
+                        {{ enrollment.status }}
+                    </span>
+                </div>
+                <div class="progress mt-2" style="height: 20px;">
+                    <div class="progress-bar" style="width: {{ enrollment.progress }}%">{{ enrollment.progress }}%</div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-muted">Not enrolled in any courses yet. <a href="{% url 'courses:course_list' %}">Browse courses</a></p>
+        {% endif %}
+    </div>
+    
+    <div class="col-md-6">
+        <h3>Upcoming Assignments</h3>
+        {% if upcoming_assignments %}
+        <div class="list-group">
+            {% for assignment in upcoming_assignments %}
+            <div class="list-group-item">
+                <strong>{{ assignment.title }}</strong>
+                <p class="mb-1">{{ assignment.lesson.course.title }} - {{ assignment.lesson.title }}</p>
+                <small class="text-danger">Due: {{ assignment.due_date|date:"M d, Y" }}</small>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-muted">No upcoming assignments.</p>
+        {% endif %}
+    </div>
+</div>
+
+{% if my_reviews %}
+<div class="mt-4">
+    <h3>My Reviews</h3>
+    <div class="list-group">
+        {% for review in my_reviews %}
+        <div class="list-group-item">
+            <strong>{{ review.course.title }}</strong> - {{ review.rating }}/5
+            <p class="mb-1">{{ review.comment|truncatewords:20 }}</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
 {% endblock %}
