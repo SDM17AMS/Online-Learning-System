@@ -1,83 +1,115 @@
 {% extends 'base.html' %}
 
-{% block title %}Instructor Dashboard{% endblock %}
+{% block title %}Instructor Dashboard | Online Learning System{% endblock %}
+{% block page_title %}Instructor Dashboard{% endblock %}
 
 {% block content %}
-<h1>Welcome, {{ user.username }}!</h1>
+<div class="ols-page-header">
+    <h1>Welcome back, {{ user.username }}! 👋</h1>
+    <p>Manage your courses and track student progress.</p>
+</div>
 
-<div class="row mt-4">
-    <div class="col-md-3">
-        <div class="card bg-primary text-white">
-            <div class="card-body">
-                <h4>{{ my_courses|length }}</h4>
-                <p>My Courses</p>
-            </div>
+<!-- Stats -->
+<div class="ols-stats-grid">
+    <div class="ols-stat-card primary">
+        <div class="ols-stat-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+        </div>
+        <div>
+            <div class="ols-stat-value">{{ my_courses|length }}</div>
+            <div class="ols-stat-label">My Courses</div>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="card bg-success text-white">
-            <div class="card-body">
-                <h4>{{ total_students }}</h4>
-                <p>Total Students</p>
-            </div>
+    <div class="ols-stat-card success">
+        <div class="ols-stat-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+        </div>
+        <div>
+            <div class="ols-stat-value">{{ total_students }}</div>
+            <div class="ols-stat-label">Total Students</div>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="card bg-warning text-dark">
-            <div class="card-body">
-                <h4>{{ published_courses }}</h4>
-                <p>Published</p>
-            </div>
+    <div class="ols-stat-card warning">
+        <div class="ols-stat-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+        </div>
+        <div>
+            <div class="ols-stat-value">{{ published_courses }}</div>
+            <div class="ols-stat-label">Published</div>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="card bg-secondary text-white">
-            <div class="card-body">
-                <h4>{{ draft_courses }}</h4>
-                <p>Drafts</p>
-            </div>
+    <div class="ols-stat-card secondary">
+        <div class="ols-stat-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+        </div>
+        <div>
+            <div class="ols-stat-value">{{ draft_courses }}</div>
+            <div class="ols-stat-label">Drafts</div>
         </div>
     </div>
 </div>
 
-<div class="row mt-4">
-    <div class="col-md-6">
-        <h3>My Courses</h3>
-        <a href="{% url 'courses:course_create' %}" class="btn btn-primary mb-3">Create New Course</a>
-        {% if my_courses %}
-        <div class="list-group">
-            {% for course in my_courses %}
-            <a href="{% url 'courses:course_detail' course.slug %}" class="list-group-item">
-                <div class="d-flex justify-content-between">
-                    <strong>{{ course.title }}</strong>
-                    <span class="badge bg-{% if course.is_published %}success{% else %}secondary{% endif %}">
-                        {% if course.is_published %}Live{% else %}Draft{% endif %}
-                    </span>
-                </div>
-                <small>{{ course.student_count }} students enrolled</small>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;">
+    <!-- My Courses -->
+    <div class="ols-card">
+        <div class="ols-card-header">
+            <h3>My Courses</h3>
+            <a href="{% url 'courses:course_create' %}" class="ols-btn ols-btn-primary ols-btn-sm">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                New Course
             </a>
-            {% endfor %}
         </div>
-        {% else %}
-        <p class="text-muted">No courses yet.</p>
-        {% endif %}
-    </div>
-    
-    <div class="col-md-6">
-        <h3>Submissions to Grade</h3>
-        {% if pending_submissions %}
-        <div class="list-group">
-            {% for submission in pending_submissions %}
-            <div class="list-group-item">
-                <strong>{{ submission.assignment.title }}</strong>
-                <p class="mb-1">By {{ submission.student.username }}</p>
-                <small>Submitted: {{ submission.submitted_at|date:"M d, Y" }}</small>
+        <div class="ols-card-body" style="padding:0;">
+            {% if my_courses %}
+            <div class="ols-list">
+                {% for course in my_courses %}
+                <a href="{% url 'courses:course_detail' course.slug %}" class="ols-list-item" style="border-radius:0;border-left:none;border-right:none;border-top:none;">
+                    <div style="flex:1;min-width:0;">
+                        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.25rem;">
+                            <span style="font-weight:600;color:var(--gray-900);">{{ course.title }}</span>
+                            <span class="ols-badge {% if course.is_published %}ols-badge-success{% else %}ols-badge-secondary{% endif %}">
+                                {% if course.is_published %}Live{% else %}Draft{% endif %}
+                            </span>
+                        </div>
+                        <div style="font-size:0.8125rem;color:var(--gray-500);">{{ course.student_count }} students enrolled</div>
+                    </div>
+                </a>
+                {% endfor %}
             </div>
-            {% endfor %}
+            {% else %}
+            <div class="ols-empty" style="padding:2rem;">
+                <p>No courses yet. Create your first course!</p>
+                <a href="{% url 'courses:course_create' %}" class="ols-btn ols-btn-primary ols-btn-sm">Create Course</a>
+            </div>
+            {% endif %}
         </div>
-        {% else %}
-        <p class="text-muted">No pending submissions.</p>
-        {% endif %}
+    </div>
+
+    <!-- Pending Submissions -->
+    <div class="ols-card">
+        <div class="ols-card-header">
+            <h3>Submissions to Grade</h3>
+            <a href="{% url 'assignments:grade_list' %}" class="ols-btn ols-btn-ghost ols-btn-sm">View All →</a>
+        </div>
+        <div class="ols-card-body" style="padding:0;">
+            {% if pending_submissions %}
+            <div class="ols-list">
+                {% for submission in pending_submissions %}
+                <a href="{% url 'assignments:grade' submission.pk %}" class="ols-list-item" style="border-radius:0;border-left:none;border-right:none;border-top:none;">
+                    <div>
+                        <div style="font-weight:600;color:var(--gray-900);">{{ submission.assignment.title }}</div>
+                        <div style="font-size:0.8125rem;color:var(--gray-500);">By {{ submission.student.username }} · {{ submission.submitted_at|date:"M d, Y" }}</div>
+                    </div>
+                    <span class="ols-badge ols-badge-warning">Grade</span>
+                </a>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="ols-empty" style="padding:2rem;">
+                <p>No pending submissions.</p>
+            </div>
+            {% endif %}
+        </div>
     </div>
 </div>
 {% endblock %}

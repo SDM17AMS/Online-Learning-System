@@ -1,89 +1,128 @@
 {% extends 'base.html' %}
 
-{% block title %}Student Dashboard{% endblock %}
+{% block title %}Student Dashboard | Online Learning System{% endblock %}
+{% block page_title %}Student Dashboard{% endblock %}
 
 {% block content %}
-<h1>Welcome, {{ user.username }}!</h1>
+<div class="ols-page-header">
+    <h1>Welcome back, {{ user.username }}! 👋</h1>
+    <p>Here's your learning progress at a glance.</p>
+</div>
 
-<div class="row mt-4">
-    <div class="col-md-4">
-        <div class="card bg-primary text-white">
-            <div class="card-body">
-                <h4>{{ enrollments|length }}</h4>
-                <p>Enrolled Courses</p>
-            </div>
+<!-- Stats -->
+<div class="ols-stats-grid">
+    <div class="ols-stat-card primary">
+        <div class="ols-stat-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+        </div>
+        <div>
+            <div class="ols-stat-value">{{ enrollments|length }}</div>
+            <div class="ols-stat-label">Enrolled Courses</div>
         </div>
     </div>
-    <div class="col-md-4">
-        <div class="card bg-success text-white">
-            <div class="card-body">
-                <h4>{{ total_lessons_completed }}</h4>
-                <p>Lessons Completed</p>
-            </div>
+    <div class="ols-stat-card success">
+        <div class="ols-stat-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+        </div>
+        <div>
+            <div class="ols-stat-value">{{ total_lessons_completed }}</div>
+            <div class="ols-stat-label">Lessons Completed</div>
         </div>
     </div>
-    <div class="col-md-4">
-        <div class="card bg-info text-white">
-            <div class="card-body">
-                <h4>{{ graded_submissions|length }}</h4>
-                <p>Graded Assignments</p>
-            </div>
+    <div class="ols-stat-card info">
+        <div class="ols-stat-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+        </div>
+        <div>
+            <div class="ols-stat-value">{{ graded_submissions|length }}</div>
+            <div class="ols-stat-label">Graded Assignments</div>
         </div>
     </div>
 </div>
 
-<div class="row mt-4">
-    <div class="col-md-6">
-        <h3>My Courses</h3>
-        {% if enrollments %}
-        <div class="list-group">
-            {% for enrollment in enrollments %}
-            <a href="{% url 'courses:course_detail' enrollment.course.slug %}" class="list-group-item">
-                <div class="d-flex justify-content-between">
-                    <strong>{{ enrollment.course.title }}</strong>
-                    <span class="badge bg-{% if enrollment.status == 'completed' %}success{% else %}primary{% endif %}">
-                        {{ enrollment.status }}
-                    </span>
-                </div>
-                <div class="progress mt-2" style="height: 20px;">
-                    <div class="progress-bar" style="width: {{ enrollment.progress }}%">{{ enrollment.progress }}%</div>
-                </div>
-            </a>
-            {% endfor %}
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;">
+    <!-- My Courses -->
+    <div class="ols-card">
+        <div class="ols-card-header">
+            <h3>My Courses</h3>
+            <a href="{% url 'courses:course_list' %}" class="ols-btn ols-btn-ghost ols-btn-sm">Browse All →</a>
         </div>
-        {% else %}
-        <p class="text-muted">Not enrolled in any courses yet. <a href="{% url 'courses:course_list' %}">Browse courses</a></p>
-        {% endif %}
-    </div>
-    
-    <div class="col-md-6">
-        <h3>Upcoming Assignments</h3>
-        {% if upcoming_assignments %}
-        <div class="list-group">
-            {% for assignment in upcoming_assignments %}
-            <div class="list-group-item">
-                <strong>{{ assignment.title }}</strong>
-                <p class="mb-1">{{ assignment.lesson.course.title }} - {{ assignment.lesson.title }}</p>
-                <small class="text-danger">Due: {{ assignment.due_date|date:"M d, Y" }}</small>
+        <div class="ols-card-body" style="padding:0;">
+            {% if enrollments %}
+            <div class="ols-list">
+                {% for enrollment in enrollments %}
+                <a href="{% url 'courses:course_detail' enrollment.course.slug %}" class="ols-list-item" style="border-radius:0;border-left:none;border-right:none;border-top:none;">
+                    <div style="flex:1;min-width:0;">
+                        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.5rem;">
+                            <span style="font-weight:600;color:var(--gray-900);">{{ enrollment.course.title }}</span>
+                            <span class="ols-badge {% if enrollment.status == 'completed' %}ols-badge-success{% else %}ols-badge-primary{% endif %}">{{ enrollment.status }}</span>
+                        </div>
+                        <div class="ols-progress">
+                            <div class="ols-progress-bar" style="width:{{ enrollment.progress }}%"></div>
+                        </div>
+                        <div style="font-size:0.75rem;color:var(--gray-500);margin-top:0.25rem;">{{ enrollment.progress }}% complete</div>
+                    </div>
+                </a>
+                {% endfor %}
             </div>
-            {% endfor %}
+            {% else %}
+            <div class="ols-empty" style="padding:2rem;">
+                <p>Not enrolled in any courses yet.</p>
+                <a href="{% url 'courses:course_list' %}" class="ols-btn ols-btn-primary ols-btn-sm">Browse Courses</a>
+            </div>
+            {% endif %}
         </div>
-        {% else %}
-        <p class="text-muted">No upcoming assignments.</p>
-        {% endif %}
+    </div>
+
+    <!-- Upcoming Assignments -->
+    <div class="ols-card">
+        <div class="ols-card-header">
+            <h3>Upcoming Assignments</h3>
+        </div>
+        <div class="ols-card-body" style="padding:0;">
+            {% if upcoming_assignments %}
+            <div class="ols-list">
+                {% for assignment in upcoming_assignments %}
+                <div class="ols-list-item" style="border-radius:0;border-left:none;border-right:none;border-top:none;">
+                    <div>
+                        <div style="font-weight:600;color:var(--gray-900);">{{ assignment.title }}</div>
+                        <div style="font-size:0.8125rem;color:var(--gray-500);">{{ assignment.lesson.course.title }} — {{ assignment.lesson.title }}</div>
+                        <div style="font-size:0.8125rem;color:var(--danger);display:flex;align-items:center;gap:0.25rem;margin-top:0.25rem;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                            Due {{ assignment.due_date|date:"M d, Y" }}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="ols-empty" style="padding:2rem;">
+                <p>No upcoming assignments.</p>
+            </div>
+            {% endif %}
+        </div>
     </div>
 </div>
 
 {% if my_reviews %}
-<div class="mt-4">
-    <h3>My Reviews</h3>
-    <div class="list-group">
-        {% for review in my_reviews %}
-        <div class="list-group-item">
-            <strong>{{ review.course.title }}</strong> - {{ review.rating }}/5
-            <p class="mb-1">{{ review.comment|truncatewords:20 }}</p>
+<div class="ols-card" style="margin-top:1.5rem;">
+    <div class="ols-card-header">
+        <h3>My Reviews</h3>
+    </div>
+    <div class="ols-card-body" style="padding:0;">
+        <div class="ols-list">
+            {% for review in my_reviews %}
+            <div class="ols-list-item" style="border-radius:0;border-left:none;border-right:none;border-top:none;">
+                <div>
+                    <div style="font-weight:600;color:var(--gray-900);">{{ review.course.title }}</div>
+                    <div class="ols-stars" style="font-size:0.875rem;margin-top:0.25rem;">
+                        {% for i in "12345" %}{% if forloop.counter <= review.rating %}★{% else %}☆{% endif %}{% endfor %}
+                    </div>
+                    <p style="margin:0.25rem 0 0;font-size:0.875rem;color:var(--gray-600);">{{ review.comment|truncatewords:15 }}</p>
+                </div>
+            </div>
+            {% endfor %}
         </div>
-        {% endfor %}
     </div>
 </div>
 {% endif %}

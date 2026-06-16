@@ -1,18 +1,28 @@
 {% extends 'base.html' %}
 {% load crispy_forms_tags %}
 
-{% block title %}{% if object %}Edit{% else %}Create{% endif %} Course{% endblock %}
+{% block title %}{% if object %}Edit{% else %}Create{% endif %} Course | Online Learning System{% endblock %}
+{% block page_title %}{% if object %}Edit Course{% else %}Create New Course{% endif %}{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-8">
-        <h1>{% if object %}Edit{% else %}Create{% endif %} Course</h1>
-        <form method="post" enctype="multipart/form-data">
-            {% csrf_token %}
-            {{ form|crispy }}
-            <button type="submit" class="btn btn-primary">Save Course</button>
-            <a href="{% url 'courses:course_list' %}" class="btn btn-secondary">Cancel</a>
-        </form>
+<div style="max-width:720px;margin:0 auto;">
+    <div class="ols-card animate-fade-in-up">
+        <div class="ols-card-header">
+            <h3>{% if object %}Edit "{{ object.title }}"{% else %}Course Details{% endif %}</h3>
+        </div>
+        <div class="ols-card-body">
+            <form method="post" enctype="multipart/form-data" class="ols-form">
+                {% csrf_token %}
+                {{ form|crispy }}
+                <div style="display:flex;gap:0.75rem;margin-top:1.5rem;">
+                    <button type="submit" class="ols-btn ols-btn-primary">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+                        Save Course
+                    </button>
+                    <a href="{% url 'courses:course_list' %}" class="ols-btn ols-btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 {% endblock %}

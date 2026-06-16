@@ -1,39 +1,166 @@
-{% block extra_js %}{% endblock %}
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Online Learning{% endblock %}</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>{% block title %}Online Learning System{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/ols-modern.css' %}">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>">
+    {% block extra_css %}{% endblock %}
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container">
-            <a class="navbar-brand" href="/">OLS</a>
-            <div class="navbar-nav ms-auto">
+    <div class="ols-wrapper">
+        <!-- Sidebar -->
+        <aside class="ols-sidebar" id="sidebar">
+            <div class="ols-sidebar-brand">
+                <div class="ols-sidebar-brand-icon">OLS</div>
+                <span class="ols-sidebar-brand-text">Learning</span>
+            </div>
+
+            <nav class="ols-sidebar-nav">
+                <!-- Public -->
+                <div class="ols-sidebar-section">
+                    <div class="ols-sidebar-label">Discover</div>
+                    <a href="{% url 'courses:course_list' %}" class="ols-sidebar-link {% if request.resolver_match.namespace == 'courses' and request.resolver_match.url_name == 'course_list' %}active{% endif %}">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+                        Browse Courses
+                    </a>
+                </div>
+
                 {% if user.is_authenticated %}
-                    <span class="navbar-text me-3">{{ user.username }} ({{ user.role }})</span>
-                    <a class="nav-link" href="{% url 'dashboard:redirect' %}">Dashboard</a>
-                    <a class="nav-link" href="{% url 'accounts:logout' %}">Logout</a>
+                <!-- Dashboard -->
+                <div class="ols-sidebar-section">
+                    <div class="ols-sidebar-label">Dashboard</div>
+                    <a href="{% url 'dashboard:redirect' %}" class="ols-sidebar-link {% if request.resolver_match.namespace == 'dashboard' %}active{% endif %}">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+                        Dashboard
+                    </a>
+                    {% if user.is_student %}
+                    <a href="{% url 'assignments:my_submissions' %}" class="ols-sidebar-link {% if request.resolver_match.namespace == 'assignments' and request.resolver_match.url_name == 'my_submissions' %}active{% endif %}">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                        My Submissions
+                    </a>
+                    {% endif %}
+                    {% if user.is_instructor or user.is_employee %}
+                    <a href="{% url 'assignments:grade_list' %}" class="ols-sidebar-link {% if request.resolver_match.namespace == 'assignments' and request.resolver_match.url_name == 'grade_list' %}active{% endif %}">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>
+                        Grade Submissions
+                    </a>
+                    {% endif %}
+                    {% if user.is_employee %}
+                    <a href="{% url 'reviews:moderate' %}" class="ols-sidebar-link {% if request.resolver_match.namespace == 'reviews' and request.resolver_match.url_name == 'moderate' %}active{% endif %}">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                        Moderate Reviews
+                    </a>
+                    <a href="{% url 'admin:index' %}" class="ols-sidebar-link" target="_blank">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+                        Admin Panel
+                    </a>
+                    {% endif %}
+                </div>
+
+                <!-- Instructor -->
+                {% if user.is_instructor %}
+                <div class="ols-sidebar-section">
+                    <div class="ols-sidebar-label">Instructor</div>
+                    <a href="{% url 'courses:course_create' %}" class="ols-sidebar-link {% if request.resolver_match.namespace == 'courses' and request.resolver_match.url_name == 'course_create' %}active{% endif %}">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                        Create Course
+                    </a>
+                </div>
+                {% endif %}
+                {% endif %}
+            </nav>
+
+            <div class="ols-sidebar-footer">
+                {% if user.is_authenticated %}
+                <div class="ols-user-card">
+                    <div class="ols-user-avatar">
+                        {% if user.student.profile_picture %}
+                        <img src="{{ user.student.profile_picture.url }}" alt="{{ user.username }}">
+                        {% else %}
+                        {{ user.username|first|upper }}
+                        {% endif %}
+                    </div>
+                    <div class="ols-user-info">
+                        <div class="ols-user-name">{{ user.username }}</div>
+                        <div class="ols-user-role">{{ user.role }}</div>
+                    </div>
+                    <a href="{% url 'accounts:logout' %}" class="ols-btn ols-btn-ghost ols-btn-icon" title="Logout">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                    </a>
+                </div>
                 {% else %}
-                    <a class="nav-link" href="{% url 'accounts:login' %}">Login</a>
-                    <a class="nav-link" href="{% url 'accounts:register' %}">Register</a>
+                <a href="{% url 'accounts:login' %}" class="ols-sidebar-link">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path><polyline points="10 17 15 12 10 7"></polyline><line x1="15" y1="12" x2="3" y2="12"></line></svg>
+                    Login
+                </a>
+                <a href="{% url 'accounts:register' %}" class="ols-sidebar-link">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="20" y1="8" x2="20" y2="14"></line><line x1="23" y1="11" x2="17" y2="11"></line></svg>
+                    Register
+                </a>
                 {% endif %}
             </div>
-        </div>
-    </nav>
-    
-    <div class="container mt-4">
-        {% if messages %}
-            {% for message in messages %}
-                <div class="alert alert-{{ message.tags }}">{{ message }}</div>
-            {% endfor %}
-        {% endif %}
-        
-        {% block content %}{% endblock %}
+        </aside>
+
+        <!-- Mobile overlay -->
+        <div class="ols-sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+        <!-- Main Content -->
+        <main class="ols-main">
+            <header class="ols-header">
+                <div style="display:flex;align-items:center;gap:1rem;">
+                    <button class="ols-mobile-toggle" onclick="toggleSidebar()" aria-label="Toggle menu">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                    </button>
+                    <h1 class="ols-header-title">{% block page_title %}{% endblock %}</h1>
+                </div>
+                <div class="ols-header-actions">
+                    {% block header_actions %}{% endblock %}
+                </div>
+            </header>
+
+            <div class="ols-content">
+                <!-- Messages -->
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="ols-alert ols-alert-{{ message.tags|default:'info' }}">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+
+                {% block content %}{% endblock %}
+            </div>
+
+            <footer class="ols-footer">
+                <p>&copy; {% now "Y" %} Online Learning System. Built with Django.</p>
+            </footer>
+        </main>
     </div>
-    
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('active');
+        }
+
+        // Auto-close sidebar on link click (mobile)
+        document.querySelectorAll('.ols-sidebar-link').forEach(link => {
+            link.addEventListener('click', () => {
+                if (window.innerWidth <= 1024) {
+                    toggleSidebar();
+                }
+            });
+        });
+    </script>
+    {% block extra_js %}{% endblock %}
 </body>
 </html>

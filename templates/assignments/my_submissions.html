@@ -1,46 +1,59 @@
-    {% extends 'base.html' %}
+{% extends 'base.html' %}
 
-{% block title %}My Submissions{% endblock %}
+{% block title %}My Submissions | Online Learning System{% endblock %}
+{% block page_title %}My Submissions{% endblock %}
 
 {% block content %}
-<h1>My Submissions</h1>
-
 {% if submissions %}
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>Assignment</th>
-            <th>Course</th>
-            <th>Submitted</th>
-            <th>Score</th>
-            <th>Status</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for sub in submissions %}
-        <tr>
-            <td>{{ sub.assignment.title }}</td>
-            <td>{{ sub.assignment.lesson.course.title }}</td>
-            <td>{{ sub.submitted_at|date:"M d, Y" }}</td>
-            <td>
-                {% if sub.score is not None %}
-                {{ sub.score }} / {{ sub.assignment.max_score }}
-                {% else %}
-                <span class="badge bg-warning">Pending</span>
-                {% endif %}
-            </td>
-            <td>
-                {% if sub.score is not None %}
-                <span class="badge bg-success">Graded</span>
-                {% else %}
-                <span class="badge bg-secondary">Submitted</span>
-                {% endif %}
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+<div class="ols-card">
+    <div class="ols-table-wrapper">
+        <table class="ols-table">
+            <thead>
+                <tr>
+                    <th>Assignment</th>
+                    <th>Course</th>
+                    <th>Submitted</th>
+                    <th>Score</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for sub in submissions %}
+                <tr>
+                    <td>
+                        <div style="font-weight:600;color:var(--gray-900);">{{ sub.assignment.title }}</div>
+                    </td>
+                    <td>{{ sub.assignment.lesson.course.title }}</td>
+                    <td style="color:var(--gray-500);font-size:0.875rem;">{{ sub.submitted_at|date:"M d, Y" }}</td>
+                    <td>
+                        {% if sub.score is not None %}
+                        <span style="font-weight:700;color:var(--success);">{{ sub.score }}</span>
+                        <span style="color:var(--gray-400);">/ {{ sub.assignment.max_score }}</span>
+                        {% else %}
+                        <span class="ols-badge ols-badge-warning">Pending</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if sub.score is not None %}
+                        <span class="ols-badge ols-badge-success">Graded</span>
+                        {% else %}
+                        <span class="ols-badge ols-badge-secondary">Submitted</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
 {% else %}
-<p class="text-muted">No submissions yet.</p>
+<div class="ols-empty">
+    <div class="ols-empty-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+    </div>
+    <h3>No Submissions Yet</h3>
+    <p>Submit your first assignment to see it here.</p>
+    <a href="{% url 'courses:course_list' %}" class="ols-btn ols-btn-primary">Browse Courses</a>
+</div>
 {% endif %}
-{% endblock %}  
+{% endblock %}

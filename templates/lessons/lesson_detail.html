@@ -1,96 +1,121 @@
 {% extends 'base.html' %}
 
-{% block title %}{{ lesson.title }}{% endblock %}
+{% block title %}{{ lesson.title }} | Online Learning System{% endblock %}
+{% block page_title %}{{ lesson.title }}{% endblock %}
 
 {% block content %}
-<div class="row">
-    <div class="col-md-8">
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="{% url 'courses:course_list' %}">Courses</a></li>
-                <li class="breadcrumb-item"><a href="{% url 'courses:course_detail' course.slug %}">{{ course.title }}</a></li>
-                <li class="breadcrumb-item active">{{ lesson.title }}</li>
-            </ol>
-        </nav>
-        
-        <h1>{{ lesson.title }}</h1>
-        <p class="text-muted">Lesson {{ lesson.order }} of {{ course.lessons.count }}</p>
-        
+<!-- Breadcrumb -->
+<nav style="margin-bottom:1.5rem;">
+    <div style="display:flex;align-items:center;gap:0.5rem;font-size:0.875rem;color:var(--gray-500);">
+        <a href="{% url 'courses:course_list' %}" style="color:var(--gray-500);">Courses</a>
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        <a href="{% url 'courses:course_detail' course.slug %}" style="color:var(--gray-500);">{{ course.title }}</a>
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        <span style="color:var(--gray-900);font-weight:600;">{{ lesson.title }}</span>
+    </div>
+</nav>
+
+<div style="display:grid;grid-template-columns:1fr 320px;gap:2rem;">
+    <div>
+        <!-- Video -->
         {% if lesson.video_url %}
-        <div class="ratio ratio-16x9 mb-4">
-            <iframe 
-                src="{{ lesson.video_url }}" 
-                title="YouTube video player" 
-                frameborder="0" 
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-                referrerpolicy="strict-origin-when-cross-origin" 
-                allowfullscreen>
-            </iframe>
+        <div class="ols-video-wrapper" style="margin-bottom:1.5rem;">
+            <iframe src="{{ lesson.video_url }}" title="{{ lesson.title }}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+        </div>
+        {% elif lesson.video_file %}
+        <div class="ols-video-wrapper" style="margin-bottom:1.5rem;">
+            <video controls>
+                <source src="{{ lesson.video_file.url }}" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
         </div>
         {% endif %}
-        
-        {% if lesson.video_file %}
-        <video controls class="w-100 mb-4">
-            <source src="{{ lesson.video_file.url }}" type="video/mp4">
-            Your browser does not support the video tag.
-        </video>
-        {% endif %}
-        
-        <h4>Description</h4>
-        <p>{{ lesson.description|linebreaks }}</p>
-        
-        {% if user == course.instructor or user.is_employee %}
-        <a href="{% url 'assignments:assignment_create' lesson.pk %}" class="btn btn-outline-warning mb-3">Add Assignment</a>
-        {% endif %}
-        
-        {% if lesson.pdf_resource %}
-        <a href="{{ lesson.pdf_resource.url }}" class="btn btn-outline-primary" target="_blank">
-            Download Resource (PDF)
-        </a>
-        {% endif %}
-    </div>
-    
-    <div class="col-md-4">
-        <div class="card">
-            <div class="card-body">
-                <h5>Course Progress</h5>
-                {% if enrollment %}
-                <div class="progress mb-3">
-                    <div class="progress-bar" data-progress="{{ enrollment.progress }}">{{ enrollment.progress }}%</div>
+
+        <!-- Lesson Info -->
+        <div class="ols-card" style="margin-bottom:1.5rem;">
+            <div class="ols-card-body">
+                <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1rem;flex-wrap:wrap;">
+                    <span class="ols-badge ols-badge-primary">Lesson {{ lesson.order }}</span>
+                    {% if lesson.duration > 0 %}
+                    <span style="color:var(--gray-500);font-size:0.875rem;display:flex;align-items:center;gap:0.25rem;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                        {{ lesson.duration }} min
+                    </span>
+                    {% endif %}
+                </div>
+                <h2 style="margin-bottom:1rem;">{{ lesson.title }}</h2>
+                <p style="margin:0;white-space:pre-wrap;">{{ lesson.description|linebreaksbr }}</p>
+
+                {% if lesson.pdf_resource %}
+                <div style="margin-top:1.5rem;padding-top:1.5rem;border-top:1px solid var(--border-color);">
+                    <a href="{{ lesson.pdf_resource.url }}" target="_blank" class="ols-btn ols-btn-outline ols-btn-sm">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                        Download Resource (PDF)
+                    </a>
                 </div>
                 {% endif %}
-                
+
+                {% if user == course.instructor or user.is_employee %}
+                <div style="margin-top:1.5rem;padding-top:1.5rem;border-top:1px solid var(--border-color);display:flex;gap:0.5rem;">
+                    <a href="{% url 'assignments:assignment_create' lesson.pk %}" class="ols-btn ols-btn-outline ols-btn-sm">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="12" y1="18" x2="12" y2="12"></line><line x1="9" y1="15" x2="15" y2="15"></line></svg>
+                        Add Assignment
+                    </a>
+                    <a href="{% url 'lessons:lesson_edit' lesson.pk %}" class="ols-btn ols-btn-ghost ols-btn-sm">Edit Lesson</a>
+                    <a href="{% url 'lessons:lesson_delete' lesson.pk %}" class="ols-btn ols-btn-danger ols-btn-sm">Delete</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div>
+        <div class="ols-card" style="position:sticky;top:84px;">
+            <div class="ols-card-header">
+                <h3>Course Progress</h3>
+            </div>
+            <div class="ols-card-body">
+                {% if enrollment %}
+                <div style="margin-bottom:1rem;">
+                    <div style="display:flex;justify-content:space-between;margin-bottom:0.5rem;">
+                        <span style="font-size:0.875rem;font-weight:600;">{{ enrollment.progress }}% Complete</span>
+                    </div>
+                    <div class="ols-progress">
+                        <div class="ols-progress-bar" style="width:{{ enrollment.progress }}%"></div>
+                    </div>
+                </div>
+                {% endif %}
+
                 {% if is_enrolled %}
                     {% if progress.is_completed %}
-                    <span class="badge bg-success">Completed</span>
+                    <div style="display:flex;align-items:center;gap:0.5rem;color:var(--success);font-weight:600;margin-bottom:1rem;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                        Completed
+                    </div>
                     {% else %}
-                    <a href="{% url 'lessons:mark_complete' lesson.pk %}" class="btn btn-success w-100">Mark as Complete</a>
+                    <a href="{% url 'lessons:mark_complete' lesson.pk %}" class="ols-btn ols-btn-success w-100" style="margin-bottom:1rem;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                        Mark as Complete
+                    </a>
                     {% endif %}
                 {% else %}
-                <a href="{% url 'courses:enroll' course.slug %}" class="btn btn-primary w-100">Enroll to Access</a>
+                <a href="{% url 'courses:enroll' course.slug %}" class="ols-btn ols-btn-primary w-100" style="margin-bottom:1rem;">Enroll to Access</a>
                 {% endif %}
-                
-                <hr>
-                <h6>All Lessons</h6>
-                <div class="list-group">
-                    {% for l in course.lessons.all %}
-                    <a href="{% url 'lessons:lesson_detail' l.pk %}" 
-                       class="list-group-item list-group-item-action {% if l.pk == lesson.pk %}active{% endif %}">
-                        {{ l.order }}. {{ l.title }}
-                    </a>
-                    {% endfor %}
+
+                <div style="border-top:1px solid var(--border-color);padding-top:1rem;">
+                    <h4 style="font-size:0.875rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--gray-500);margin-bottom:0.75rem;">All Lessons</h4>
+                    <div class="ols-list" style="gap:0.25rem;">
+                        {% for l in course.lessons.all %}
+                        <a href="{% url 'lessons:lesson_detail' l.pk %}" class="ols-list-item {% if l.pk == lesson.pk %}active{% endif %}" style="padding:0.625rem 0.875rem;font-size:0.875rem;">
+                            <span style="font-weight:600;color:var(--gray-400);margin-right:0.5rem;">{{ l.order }}.</span>
+                            <span style="color:var(--gray-900);font-weight:500;">{{ l.title }}</span>
+                        </a>
+                        {% endfor %}
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
-{% endblock %}
-
-{% block extra_js %}
-<script>
-document.querySelectorAll('.progress-bar').forEach(bar => {
-    const progress = bar.getAttribute('data-progress');
-    if (progress) bar.style.width = progress + '%';
-});
-</script>
 {% endblock %}

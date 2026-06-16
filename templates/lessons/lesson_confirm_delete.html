@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block title %}Delete Lesson | Online Learning System{% endblock %}
+{% block page_title %}Delete Lesson{% endblock %}
+
+{% block content %}
+<div style="max-width:480px;margin:0 auto;">
+    <div class="ols-card animate-fade-in-up" style="text-align:center;padding:2.5rem;">
+        <div style="width:80px;height:80px;background:var(--danger-light);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1.5rem;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--danger)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+        </div>
+        <h2 style="margin-bottom:0.5rem;">Delete Lesson?</h2>
+        <p style="color:var(--gray-500);margin-bottom:0.5rem;">Are you sure you want to delete</p>
+        <p style="font-weight:700;color:var(--gray-900);font-size:1.125rem;margin-bottom:1.5rem;">"{{ object.title }}"</p>
+        <p style="color:var(--danger);font-size:0.875rem;margin-bottom:2rem;">This will also delete any associated assignment. This action cannot be undone.</p>
+
+        <form method="post" style="display:flex;gap:0.75rem;justify-content:center;">
+            {% csrf_token %}
+            <button type="submit" class="ols-btn ols-btn-danger">Yes, Delete</button>
+            <a href="{% url 'courses:course_detail' object.course.slug %}" class="ols-btn ols-btn-secondary">Cancel</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

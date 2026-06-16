@@ -1,19 +1,29 @@
 {% extends 'base.html' %}
 {% load crispy_forms_tags %}
 
-{% block title %}{% if review %}Edit{% else %}Add{% endif %} Review{% endblock %}
+{% block title %}{% if review %}Edit{% else %}Add{% endif %} Review | Online Learning System{% endblock %}
+{% block page_title %}{% if review %}Edit Review{% else %}Write a Review{% endif %}{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-8">
-        <h1>{% if review %}Edit{% else %}Add{% endif %} Review</h1>
-        <p class="text-muted">For course: {{ course.title }}</p>
-        <form method="post">
-            {% csrf_token %}
-            {{ form|crispy }}
-            <button type="submit" class="btn btn-primary">Submit Review</button>
-            <a href="{% url 'courses:course_detail' course.slug %}" class="btn btn-secondary">Cancel</a>
-        </form>
+<div style="max-width:600px;margin:0 auto;">
+    <div class="ols-card animate-fade-in-up">
+        <div class="ols-card-header">
+            <h3>{% if review %}Edit Your Review{% else %}Rate This Course{% endif %}</h3>
+            <span style="color:var(--gray-500);font-size:0.875rem;">{{ course.title }}</span>
+        </div>
+        <div class="ols-card-body">
+            <form method="post" class="ols-form">
+                {% csrf_token %}
+                {{ form|crispy }}
+                <div style="display:flex;gap:0.75rem;margin-top:1.5rem;">
+                    <button type="submit" class="ols-btn ols-btn-primary">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                        {% if review %}Update Review{% else %}Submit Review{% endif %}
+                    </button>
+                    <a href="{% url 'courses:course_detail' course.slug %}" class="ols-btn ols-btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 {% endblock %}

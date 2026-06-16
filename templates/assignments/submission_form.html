@@ -1,22 +1,47 @@
 {% extends 'base.html' %}
 {% load crispy_forms_tags %}
 
-{% block title %}Submit Assignment{% endblock %}
+{% block title %}Submit Assignment | Online Learning System{% endblock %}
+{% block page_title %}Submit Assignment{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-8">
-        <h1>Submit: {{ assignment.title }}</h1>
-        <p class="text-muted">{{ assignment.lesson.course.title }} - {{ assignment.lesson.title }}</p>
-        <p><strong>Due:</strong> {{ assignment.due_date|date:"M d, Y H:i" }}</p>
-        <p><strong>Max Score:</strong> {{ assignment.max_score }}</p>
-        
-        <form method="post" enctype="multipart/form-data">
-            {% csrf_token %}
-            {{ form|crispy }}
-            <button type="submit" class="btn btn-primary">Submit Assignment</button>
-            <a href="{% url 'lessons:lesson_detail' assignment.lesson.pk %}" class="btn btn-secondary">Cancel</a>
-        </form>
+<div style="max-width:720px;margin:0 auto;">
+    <div class="ols-card animate-fade-in-up">
+        <div class="ols-card-header">
+            <h3>{{ assignment.title }}</h3>
+        </div>
+        <div class="ols-card-body">
+            <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:1rem;margin-bottom:1.5rem;padding:1rem;background:var(--gray-50);border-radius:var(--radius);">
+                <div>
+                    <div style="font-size:0.75rem;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:var(--gray-500);margin-bottom:0.25rem;">Course</div>
+                    <div style="font-weight:600;color:var(--gray-900);">{{ assignment.lesson.course.title }}</div>
+                </div>
+                <div>
+                    <div style="font-size:0.75rem;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:var(--gray-500);margin-bottom:0.25rem;">Lesson</div>
+                    <div style="font-weight:600;color:var(--gray-900);">{{ assignment.lesson.title }}</div>
+                </div>
+                <div>
+                    <div style="font-size:0.75rem;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:var(--gray-500);margin-bottom:0.25rem;">Due Date</div>
+                    <div style="font-weight:600;color:var(--danger);">{{ assignment.due_date|date:"M d, Y H:i" }}</div>
+                </div>
+                <div>
+                    <div style="font-size:0.75rem;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:var(--gray-500);margin-bottom:0.25rem;">Max Score</div>
+                    <div style="font-weight:600;color:var(--gray-900);">{{ assignment.max_score }}</div>
+                </div>
+            </div>
+
+            <form method="post" enctype="multipart/form-data" class="ols-form">
+                {% csrf_token %}
+                {{ form|crispy }}
+                <div style="display:flex;gap:0.75rem;margin-top:1.5rem;">
+                    <button type="submit" class="ols-btn ols-btn-primary">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                        Submit Assignment
+                    </button>
+                    <a href="{% url 'lessons:lesson_detail' assignment.lesson.pk %}" class="ols-btn ols-btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 {% endblock %}

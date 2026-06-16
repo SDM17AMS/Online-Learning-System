@@ -1,88 +1,140 @@
 {% extends 'base.html' %}
 
-{% block title %}{{ course.title }}{% endblock %}
+{% block title %}{{ course.title }} | Online Learning System{% endblock %}
+{% block page_title %}{{ course.title }}{% endblock %}
+
+{% block header_actions %}
+{% if user == course.instructor or user.is_employee %}
+<a href="{% url 'courses:course_edit' course.slug %}" class="ols-btn ols-btn-outline ols-btn-sm">Edit</a>
+<a href="{% url 'courses:course_delete' course.slug %}" class="ols-btn ols-btn-danger ols-btn-sm">Delete</a>
+{% endif %}
+{% endblock %}
 
 {% block content %}
-<div class="row">
-    <div class="col-md-8">
+<div style="display:grid;grid-template-columns:1fr 340px;gap:2rem;">
+    <div>
+        <!-- Course Image -->
         {% if course.image %}
-        <img src="{{ course.image.url }}" class="img-fluid rounded mb-4" alt="{{ course.title }}">
+        <div style="border-radius:var(--radius-lg);overflow:hidden;margin-bottom:1.5rem;box-shadow:var(--shadow-md);">
+            <img src="{{ course.image.url }}" alt="{{ course.title }}" style="width:100%;height:280px;object-fit:cover;display:block;">
+        </div>
         {% endif %}
-        
-        <h1>{{ course.title }}</h1>
-        <p class="text-muted">
-            By <a href="?instructor={{ course.instructor.username }}">{{ course.instructor.username }}</a> | 
-            {{ course.category.name|default:"Uncategorized" }} | 
-            {{ course.created_at|date:"F d, Y" }}
-        </p>
-        
-        <div class="mb-3">
+
+        <!-- Meta -->
+        <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;margin-bottom:1rem;">
+            {% if course.category %}
+            <span class="ols-badge ols-badge-primary">{{ course.category.name }}</span>
+            {% endif %}
+            <span style="color:var(--gray-500);font-size:0.875rem;">
+                By <a href="{% url 'courses:course_list' %}?instructor={{ course.instructor.username }}">{{ course.instructor.username }}</a>
+                · {{ course.created_at|date:"F d, Y" }}
+            </span>
+            {% if avg_rating %}
+            <span class="ols-stars">
+                {% for i in "12345" %}
+                    {% if forloop.counter <= avg_rating %}★{% else %}☆{% endif %}
+                {% endfor %}
+                <span style="color:var(--gray-500);margin-left:0.25rem;">({{ review_count }})</span>
+            </span>
+            {% endif %}
+        </div>
+
+        <!-- Tags -->
+        {% if course.tags.all %}
+        <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:1.5rem;">
             {% for tag in course.tags.all %}
-            <span class="badge bg-info">{{ tag.name }}</span>
+            <span class="ols-badge ols-badge-secondary">{{ tag.name }}</span>
             {% endfor %}
         </div>
-        
-        <h4>Description</h4>
-        <p>{{ course.description|linebreaks }}</p>
-        
-        {% if user == course.instructor or user.is_employee %}
-        <a href="{% url 'lessons:lesson_create' course.id %}" class="btn btn-outline-success mb-3">Add Lesson</a>
         {% endif %}
-        
-        <h4 class="mt-4">Lessons ({{ lessons|length }})</h4>
-        {% if lessons %}
-        <div class="list-group">
-            {% for lesson in lessons %}
-            <div class="list-group-item d-flex justify-content-between align-items-center">
-                <div>
-                    <span class="badge bg-secondary me-2">#{{ lesson.order }}</span>
-                    {{ lesson.title }}
-                    {% if lesson.duration > 0 %}
-                    <small class="text-muted">({{ lesson.duration }} min)</small>
-                    {% endif %}
-                </div>
-                {% if is_enrolled %}
-                <a href="{% url 'lessons:lesson_detail' lesson.pk %}" class="btn btn-sm btn-success">Start</a>
-                {% else %}
-                <span class="badge bg-secondary">Enroll to access</span>
+
+        <!-- Description -->
+        <div class="ols-card" style="margin-bottom:2rem;">
+            <div class="ols-card-body">
+                <h3 style="margin-bottom:1rem;">About This Course</h3>
+                <p style="margin:0;white-space:pre-wrap;">{{ course.description|linebreaksbr }}</p>
+            </div>
+        </div>
+
+        <!-- Lessons -->
+        <div class="ols-card" style="margin-bottom:2rem;">
+            <div class="ols-card-header">
+                <h3>Lessons ({{ lessons|length }})</h3>
+                {% if user == course.instructor or user.is_employee %}
+                <a href="{% url 'lessons:lesson_create' course.id %}" class="ols-btn ols-btn-primary ols-btn-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                    Add Lesson
+                </a>
                 {% endif %}
             </div>
-            {% endfor %}
+            <div class="ols-card-body" style="padding:0;">
+                {% if lessons %}
+                <div class="ols-list">
+                    {% for lesson in lessons %}
+                    <div class="ols-list-item" style="border-radius:0;border-left:none;border-right:none;border-top:none;">
+                        <div style="display:flex;align-items:center;gap:0.75rem;">
+                            <span class="ols-badge ols-badge-secondary">#{{ lesson.order }}</span>
+                            <div>
+                                <div style="font-weight:600;color:var(--gray-900);">{{ lesson.title }}</div>
+                                {% if lesson.duration > 0 %}
+                                <small style="color:var(--gray-500);">{{ lesson.duration }} min</small>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% if is_enrolled %}
+                        <a href="{% url 'lessons:lesson_detail' lesson.pk %}" class="ols-btn ols-btn-success ols-btn-sm">Start</a>
+                        {% else %}
+                        <span class="ols-badge ols-badge-secondary">Enroll to access</span>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="ols-empty" style="padding:2rem;">
+                    <p>No lessons yet.</p>
+                </div>
+                {% endif %}
+            </div>
         </div>
-        {% else %}
-        <p class="text-muted">No lessons yet.</p>
-        {% endif %}
-        
-        <h4 class="mt-4">Reviews</h4>
-        {% if is_enrolled %}
-        <a href="{% url 'reviews:add_review' course.slug %}" class="btn btn-outline-primary mb-3">Write a Review</a>
-        {% endif %}
-        <a href="{% url 'reviews:course_reviews' course.slug %}" class="btn btn-outline-secondary mb-3">View All Reviews</a>
+
+        <!-- Reviews -->
+        <div class="ols-card">
+            <div class="ols-card-header">
+                <h3>Reviews</h3>
+                <div style="display:flex;gap:0.5rem;">
+                    {% if is_enrolled %}
+                    <a href="{% url 'reviews:add_review' course.slug %}" class="ols-btn ols-btn-outline ols-btn-sm">Write Review</a>
+                    {% endif %}
+                    <a href="{% url 'reviews:course_reviews' course.slug %}" class="ols-btn ols-btn-ghost ols-btn-sm">View All</a>
+                </div>
+            </div>
+        </div>
     </div>
-    
-    <div class="col-md-4">
-        <div class="card sticky-top" style="top: 20px;">
-            <div class="card-body">
-                <h3 class="card-title">${{ course.price }}</h3>
-                <p class="card-text">
+
+    <!-- Sidebar -->
+    <div>
+        <div class="ols-card" style="position:sticky;top:84px;">
+            <div class="ols-card-body" style="text-align:center;">
+                <div style="font-size:2.5rem;font-weight:800;color:var(--primary-600);margin-bottom:0.5rem;">${{ course.price }}</div>
+                <p style="color:var(--gray-500);margin-bottom:1.5rem;">
                     <strong>{{ course.enrolled_students_count }}</strong> students enrolled<br>
                     <strong>{{ lessons|length }}</strong> lessons
                 </p>
-                
+
                 {% if user.is_authenticated %}
                     {% if is_enrolled %}
-                    <a href="{% url 'dashboard:student' %}" class="btn btn-success w-100">Go to My Courses</a>
+                    <a href="{% url 'dashboard:student' %}" class="ols-btn ols-btn-success ols-btn-lg w-100">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                        Go to My Courses
+                    </a>
                     {% elif user.is_student %}
-                    <a href="{% url 'courses:enroll' course.slug %}" class="btn btn-primary w-100">Enroll Now</a>
-                    {% endif %}
-                    
-                    {% if user == course.instructor or user.is_employee %}
-                    <hr>
-                    <a href="{% url 'courses:course_edit' course.slug %}" class="btn btn-outline-secondary w-100 mb-2">Edit Course</a>
-                    <a href="{% url 'courses:course_delete' course.slug %}" class="btn btn-outline-danger w-100">Delete Course</a>
+                    <a href="{% url 'courses:enroll' course.slug %}" class="ols-btn ols-btn-primary ols-btn-lg w-100">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="20" y1="8" x2="20" y2="14"></line><line x1="23" y1="11" x2="17" y2="11"></line></svg>
+                        Enroll Now
+                    </a>
                     {% endif %}
                 {% else %}
-                <a href="{% url 'accounts:login' %}?next={{ request.path }}" class="btn btn-primary w-100">Login to Enroll</a>
+                <a href="{% url 'accounts:login' %}?next={{ request.path }}" class="ols-btn ols-btn-primary ols-btn-lg w-100">Login to Enroll</a>
                 {% endif %}
             </div>
         </div>

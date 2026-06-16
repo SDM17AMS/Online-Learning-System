@@ -23,9 +23,12 @@ def user_login(request):
             username = form.cleaned_data['username']
             password = form.cleaned_data['password']
             user = authenticate(request, username=username, password=password)
-            if user:
-                login(request, user)
-                return redirect('dashboard:redirect')
+            if user is not None:
+                if user.is_active:
+                    login(request, user)
+                    return redirect('dashboard:redirect')
+                else:
+                    form.add_error(None, 'Your account has been disabled.')
             else:
                 form.add_error(None, 'Invalid username or password')
     else:
@@ -33,7 +36,7 @@ def user_login(request):
     return render(request, 'accounts/login.html', {'form': form})
 
 
-@login_required
 def user_logout(request):
+    """Logout does not require login."""
     logout(request)
     return redirect('accounts:login')

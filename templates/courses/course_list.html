@@ -1,86 +1,95 @@
 {% extends 'base.html' %}
 
-{% block title %}Browse Courses{% endblock %}
+{% block title %}Browse Courses | Online Learning System{% endblock %}
+{% block page_title %}Browse Courses{% endblock %}
+
+{% block header_actions %}
+{% if user.is_authenticated and user.is_instructor %}
+<a href="{% url 'courses:course_create' %}" class="ols-btn ols-btn-primary ols-btn-sm">
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+    Create Course
+</a>
+{% endif %}
+{% endblock %}
 
 {% block content %}
-<div class="row mb-4">
-    <div class="col">
-        <h1>Browse Courses</h1>
+<!-- Search -->
+<div style="display:flex;gap:1rem;align-items:center;margin-bottom:1.5rem;flex-wrap:wrap;">
+    <form method="get" class="ols-search" style="max-width:360px;">
+        <svg class="ols-search-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        <input type="text" name="q" placeholder="Search courses..." value="{{ search_query }}">
+    </form>
+</div>
+
+<!-- Filters -->
+<div class="ols-filters">
+    <div class="ols-filter-group">
+        <span class="ols-filter-label">Category:</span>
+        <a href="{% url 'courses:course_list' %}" class="ols-filter-chip {% if not request.GET.category %}active{% endif %}">All</a>
+        {% for cat in categories %}
+        <a href="?category={{ cat.slug }}{% if request.GET.tag %}&tag={{ request.GET.tag }}{% endif %}" class="ols-filter-chip {% if request.GET.category == cat.slug %}active{% endif %}">{{ cat.name }}</a>
+        {% endfor %}
     </div>
-    {% if user.is_authenticated and user.is_instructor %}
-    <div class="col-auto">
-        <a href="{% url 'courses:course_create' %}" class="btn btn-primary">Create Course</a>
+    {% if tags %}
+    <div class="ols-filter-group" style="margin-top:0.75rem;">
+        <span class="ols-filter-label">Tags:</span>
+        {% for tag in tags %}
+        <a href="?tag={{ tag.slug }}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}" class="ols-filter-chip {% if request.GET.tag == tag.slug %}active{% endif %}">{{ tag.name }}</a>
+        {% endfor %}
     </div>
     {% endif %}
 </div>
 
-<!-- Filters -->
-<div class="card mb-4">
-    <div class="card-body">
-        <h5 class="card-title">Filter By</h5>
-        <div class="row">
-            <div class="col-md-4">
-                <label>Category:</label>
-                <div class="d-flex flex-wrap gap-2">
-                    <a href="{% url 'courses:course_list' %}" class="btn btn-sm btn-outline-secondary {% if not request.GET.category %}active{% endif %}">All</a>
-                    {% for cat in categories %}
-                    <a href="?category={{ cat.slug }}" class="btn btn-sm btn-outline-secondary {% if request.GET.category == cat.slug %}active{% endif %}">{{ cat.name }}</a>
-                    {% endfor %}
-                </div>
-            </div>
-            <div class="col-md-4">
-                <label>Tag:</label>
-                <div class="d-flex flex-wrap gap-2">
-                    {% for tag in tags %}
-                    <a href="?tag={{ tag.slug }}" class="btn btn-sm btn-outline-info {% if request.GET.tag == tag.slug %}active{% endif %}">{{ tag.name }}</a>
-                    {% endfor %}
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
 <!-- Course Grid -->
-<div class="row">
+<div class="stagger-children" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1.5rem;">
     {% for course in courses %}
-    <div class="col-md-4 mb-4">
-        <div class="card h-100">
+    <a href="{% url 'courses:course_detail' course.slug %}" class="ols-course-card" style="text-decoration:none;color:inherit;">
+        <div class="ols-course-image">
             {% if course.image %}
-            <img src="{{ course.image.url }}" class="card-img-top" alt="{{ course.title }}" style="height: 180px; object-fit: cover;">
-            {% endif %}
-            <div class="card-body">
-                <span class="badge bg-secondary">{{ course.category.name|default:"Uncategorized" }}</span>
-                <h5 class="card-title mt-2">{{ course.title }}</h5>
-                <p class="card-text text-muted">{{ course.description|truncatewords:20 }}</p>
-                <p class="card-text">
-                    <small>By {{ course.instructor.username }}</small><br>
-                    <strong>${{ course.price }}</strong>
-                </p>
+            <img src="{{ course.image.url }}" alt="{{ course.title }}">
+            {% else %}
+            <div class="ols-course-image-placeholder">
+                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
             </div>
-            <div class="card-footer">
-                <a href="{% url 'courses:course_detail' course.slug %}" class="btn btn-primary btn-sm">View Details</a>
+            {% endif %}
+            {% if course.category %}
+            <span class="ols-course-badge">{{ course.category.name }}</span>
+            {% endif %}
+            <span class="ols-course-price">${{ course.price }}</span>
+        </div>
+        <div class="ols-course-body">
+            <h3 class="ols-course-title">{{ course.title }}</h3>
+            <p class="ols-course-desc">{{ course.description|truncatewords:15 }}</p>
+            <div class="ols-course-meta">
+                <span class="ols-course-instructor">
+                    <span class="ols-course-instructor-avatar">{{ course.instructor.username|first|upper }}</span>
+                    {{ course.instructor.username }}
+                </span>
+                <span>{{ course.total_lessons }} lessons · {{ course.enrolled_students_count }} students</span>
             </div>
         </div>
-    </div>
+    </a>
     {% empty %}
-    <div class="col">
-        <p class="text-muted">No courses found.</p>
+    <div class="ols-empty" style="grid-column:1/-1;">
+        <div class="ols-empty-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        </div>
+        <h3>No courses found</h3>
+        <p>Try adjusting your filters or search for something else.</p>
     </div>
     {% endfor %}
 </div>
 
 <!-- Pagination -->
 {% if is_paginated %}
-<nav class="mt-4">
-    <ul class="pagination justify-content-center">
-        {% if page_obj.has_previous %}
-        <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.tag %}&tag={{ request.GET.tag }}{% endif %}">Previous</a></li>
-        {% endif %}
-        <li class="page-item active"><span class="page-link">{{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span></li>
-        {% if page_obj.has_next %}
-        <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.tag %}&tag={{ request.GET.tag }}{% endif %}">Next</a></li>
-        {% endif %}
-    </ul>
-</nav>
+<div class="ols-pagination">
+    {% if page_obj.has_previous %}
+    <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.tag %}&tag={{ request.GET.tag }}{% endif %}{% if search_query %}&q={{ search_query|urlencode }}{% endif %}">← Prev</a>
+    {% endif %}
+    <span class="active">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+    {% if page_obj.has_next %}
+    <a href="?page={{ page_obj.next_page_number }}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.tag %}&tag={{ request.GET.tag }}{% endif %}{% if search_query %}&q={{ search_query|urlencode }}{% endif %}">Next →</a>
+    {% endif %}
+</div>
 {% endif %}
 {% endblock %}
