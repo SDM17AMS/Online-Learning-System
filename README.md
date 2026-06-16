@@ -1,16 +1,34 @@
 ## Setup Commands
 
 ```bash
-# 1. Install dependencies
+
+# 1. virtual environment for window
+python -m venv venv
+python -m venv env
+
+#Linux or Mac
+python3 -m venv venv
+python3 -m venv env
+
+# 2.Virutual Environment Activation
+## Window
+venv/scripts/activate
+env/scripts/activate
+
+##linux or max
+soruce venv/bin/activate
+source env/bin/activate
+
+# 3. Install dependencies
 pip install -r requirements.txt
 
-# 2. Run database migrations
+# 4. Run database migrations
 python manage.py migrate
 
-# 3. Create demo users and sample data
+# 5. Create demo users and sample data
 python manage.py create_demo_data
 
-# 4. Start development server
+# 6. Start development server
 python manage.py runserver
 
 Demo Credentials
